@@ -1,0 +1,38 @@
+# Every 30 minutes GitHub's servers fetch the latest AI news and republish the app
+# on GitHub Pages (free). Your phone just opens the page – no PC needs to stay on.
+name: Update AI news
+
+on:
+  schedule:
+    - cron: '*/30 * * * *'
+  workflow_dispatch:      # "Run workflow" button for an instant refresh
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Fetch latest news
+        run: node fetcher/fetch.mjs
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: app
+      - id: deploy
+        uses: actions/deploy-pages@v4

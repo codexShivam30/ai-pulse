@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>AI Pulse</title>
+  <meta name="description" content="Latest, verified AI news from official labs, research, press, YouTube and community.">
+  <meta name="theme-color" content="#0b0d14">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icons/icon-192.png">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="top">
+    <div class="brand">
+      <img src="icons/icon-192.png" alt="" width="28" height="28">
+      <div>
+        <h1>AI Pulse</h1>
+        <p id="updated">Loading…</p>
+      </div>
+    </div>
+    <div class="top-actions">
+      <button id="digestBtn" class="icon-btn" title="Copy today's top 10" aria-label="Copy today's top 10">📋</button>
+      <button id="refreshBtn" class="icon-btn" title="Refresh" aria-label="Refresh">⟳</button>
+    </div>
+  </header>
+
+  <nav class="tabs" role="tablist">
+    <button class="tab active" data-view="top">🔥 Top</button>
+    <button class="tab" data-view="latest">🕒 Latest</button>
+    <button class="tab" data-view="saved">🔖 Saved</button>
+    <button class="tab" data-view="sources">📡 Sources</button>
+  </nav>
+
+  <div id="filters">
+    <input id="search" type="search" placeholder="Search e.g. GPT, Gemini, funding…" autocomplete="off">
+    <div class="chips" id="tierChips"></div>
+    <div class="chips" id="timeChips"></div>
+  </div>
+
+  <main id="list" aria-live="polite"></main>
+
+  <div id="toast" role="status"></div>
+  <script src="app.js"></script>
+</body>
+</html>
