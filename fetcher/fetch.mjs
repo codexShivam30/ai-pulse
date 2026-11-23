@@ -116,13 +116,24 @@ async function loadRedditApi(src) {
   if (!tokenRes.ok) throw new Error(`Reddit login failed: HTTP ${tokenRes.status} (check the Reddit keys)`);
   const { access_token } = await tokenRes.json();
   if (!access_token) throw new Error('Reddit login failed (check the Reddit keys)');
-  const res = await fetch(`https://oauth.reddit.com/r/${src.subs}/top?t=day&limit=60&raw_json=1`, {
-    headers: { Authorization: `Bearer ${access_token}`, 'User-Agent': UA },
-    signal: AbortSignal.timeout(20000),
-  });
-  if (!res.ok) throw new Error(`Reddit API: HTTP ${res.status}`);
-  const data = await res.json();
-  return data.data.children
+  const top = async (subs, limit) => {
+    const res = await fetch(`https://oauth.reddit.com/r/${subs}/top?t=day&limit=${limit}&raw_json=1`, {
+      headers: { Authorization: `Bearer ${access_token}`, 'User-Agent': UA },
+      signal: AbortSignal.timeout(20000),
+    });
+    if (!res.ok) throw new Error(`Reddit API: HTTP ${res.status} for r/${subs}`);
+    return (await res.json()).data.children;
+  };
+  let children;
+  try {
+    children = await top(src.subs, 60);
+  } catch (e) {
+    // One private/banned subreddit breaks the combined request, so fall back to one request each.
+    const each = await Promise.allSettled(src.subs.split('+').map((s) => top(s, 10)));
+    children = each.filter((r) => r.status === 'fulfilled').flatMap((r) => r.value);
+    if (!children.length) throw new Error(`keys found, but ${e.message}`);
+  }
+  return children
     .map((c) => c.data)
     .filter((p) => !p.stickied && !p.over_18 && p.score >= 50)
     .map((p) => {
