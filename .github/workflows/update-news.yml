@@ -1,5 +1,5 @@
-# Every 30 minutes GitHub's servers fetch the latest AI news and republish the app
-# on GitHub Pages (free). Your phone just opens the page – no PC needs to stay on.
+﻿# Every 30 minutes GitHub's servers fetch the latest AI news and republish the app
+# on GitHub Pages (free). Your phone just opens the page â€“ no PC needs to stay on.
 name: Update AI news
 
 on:
@@ -25,8 +25,8 @@ jobs:
       name: github-pages
       url: ${{ steps.deploy.outputs.page_url }}
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
         with:
           node-version: 22
       - name: Fetch latest news
@@ -35,7 +35,7 @@ jobs:
           # Optional: add these in Settings -> Secrets and variables -> Actions to enable Reddit
           REDDIT_CLIENT_ID: ${{ secrets.REDDIT_CLIENT_ID }}
           REDDIT_CLIENT_SECRET: ${{ secrets.REDDIT_CLIENT_SECRET }}
-      - uses: actions/upload-pages-artifact@v3
+      - uses: actions/upload-pages-artifact@v4
         with:
           path: app
       - id: deploy
