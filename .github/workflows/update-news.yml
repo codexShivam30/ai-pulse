@@ -1,5 +1,5 @@
 ﻿# Every 30 minutes GitHub's servers fetch the latest AI news and republish the app
-# on GitHub Pages (free). Your phone just opens the page â€“ no PC needs to stay on.
+# on GitHub Pages (free). Your phone just opens the page - no PC needs to stay on.
 name: Update AI news
 
 on:

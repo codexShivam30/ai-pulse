@@ -120,7 +120,7 @@ async function loadRedditApi(src) {
     headers: { Authorization: `Bearer ${access_token}`, 'User-Agent': UA },
     signal: AbortSignal.timeout(20000),
   });
-  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  if (!res.ok) throw new Error(`Reddit API: HTTP ${res.status}`);
   const data = await res.json();
   return data.data.children
     .map((c) => c.data)
@@ -144,7 +144,9 @@ async function loadRedditApi(src) {
 
 async function loadReddit(src) {
   if (process.env.REDDIT_CLIENT_ID && process.env.REDDIT_CLIENT_SECRET) return loadRedditApi(src);
-  const xml = await get(src.url);
+  let xml;
+  try { xml = await get(src.url); }
+  catch (e) { throw new Error(`no Reddit keys found, public feed blocked (${e.message})`); }
   const entries = xml.match(/<entry\b[\s\S]*?<\/entry>/gi) || [];
   return parseFeed(xml).map((it, i) => {
     const sub = attr(entries[i] || '', 'category', 'label') || src.name;
