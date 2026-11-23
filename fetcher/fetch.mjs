@@ -193,7 +193,10 @@ const TIER_WEIGHT = { official: 30, research: 18, press: 20, creator: 12, commun
 // ---------- main ----------
 const report = [];
 const all = [];
-await Promise.all(SOURCES.map(async (src) => {
+// Reddit is skipped entirely until REDDIT_CLIENT_ID / REDDIT_CLIENT_SECRET are added as GitHub secrets.
+const hasRedditKeys = !!(process.env.REDDIT_CLIENT_ID && process.env.REDDIT_CLIENT_SECRET);
+const ACTIVE = SOURCES.filter((s) => s.type !== 'reddit' || hasRedditKeys);
+await Promise.all(ACTIVE.map(async (src) => {
   try {
     let items = await LOADERS[src.type](src);
     items = items
