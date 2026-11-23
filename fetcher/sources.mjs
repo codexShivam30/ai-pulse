@@ -13,7 +13,8 @@
 // To add a YouTube channel: https://www.youtube.com/feeds/videos.xml?channel_id=<ID>
 
 const yt = (id) => `https://www.youtube.com/feeds/videos.xml?channel_id=${id}`;
-const reddit = (subs) => `https://www.reddit.com/r/${subs}/top/.rss?t=day&limit=50`;
+const reddit = (subs) => `https://www.reddit.com/r/${subs}/top.rss?t=day&limit=50`;
+const REDDIT_SUBS = 'LocalLLaMA+MachineLearning+OpenAI+ClaudeAI+singularity+artificial+StableDiffusion';
 
 export const SOURCES = [
   // ---- Official lab / company announcements ----
@@ -52,5 +53,5 @@ export const SOURCES = [
   // ---- Community (fast but unverified) ----
   { id: 'hn', name: 'Hacker News', tier: 'community', type: 'hn' },
   // One combined request (Reddit rate-limits many separate ones). Edit the list to add subreddits.
-  { id: 'reddit', name: 'Reddit', tier: 'community', type: 'reddit', url: reddit('LocalLLaMA+MachineLearning+OpenAI+ClaudeAI+artificial+StableDiffusion') },
+  { id: 'reddit', name: 'Reddit', tier: 'community', type: 'reddit', subs: REDDIT_SUBS, url: reddit(REDDIT_SUBS) },
 ];

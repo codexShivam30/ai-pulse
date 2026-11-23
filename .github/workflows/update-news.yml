@@ -31,6 +31,10 @@ jobs:
           node-version: 22
       - name: Fetch latest news
         run: node fetcher/fetch.mjs
+        env:
+          # Optional: add these in Settings -> Secrets and variables -> Actions to enable Reddit
+          REDDIT_CLIENT_ID: ${{ secrets.REDDIT_CLIENT_ID }}
+          REDDIT_CLIENT_SECRET: ${{ secrets.REDDIT_CLIENT_SECRET }}
       - uses: actions/upload-pages-artifact@v3
         with:
           path: app

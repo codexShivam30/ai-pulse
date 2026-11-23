@@ -103,7 +103,47 @@ async function loadHFPapers(src) {
     }));
 }
 
+// Reddit blocks anonymous bots, so use its official API when keys are provided
+// (REDDIT_CLIENT_ID / REDDIT_CLIENT_SECRET, stored as GitHub secrets). Otherwise try the public RSS.
+async function loadRedditApi(src) {
+  const auth = Buffer.from(`${process.env.REDDIT_CLIENT_ID}:${process.env.REDDIT_CLIENT_SECRET}`).toString('base64');
+  const tokenRes = await fetch('https://www.reddit.com/api/v1/access_token', {
+    method: 'POST',
+    headers: { Authorization: `Basic ${auth}`, 'User-Agent': UA, 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: 'grant_type=client_credentials',
+    signal: AbortSignal.timeout(20000),
+  });
+  if (!tokenRes.ok) throw new Error(`Reddit login failed: HTTP ${tokenRes.status} (check the Reddit keys)`);
+  const { access_token } = await tokenRes.json();
+  if (!access_token) throw new Error('Reddit login failed (check the Reddit keys)');
+  const res = await fetch(`https://oauth.reddit.com/r/${src.subs}/top?t=day&limit=60&raw_json=1`, {
+    headers: { Authorization: `Bearer ${access_token}`, 'User-Agent': UA },
+    signal: AbortSignal.timeout(20000),
+  });
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  const data = await res.json();
+  return data.data.children
+    .map((c) => c.data)
+    .filter((p) => !p.stickied && !p.over_18 && p.score >= 50)
+    .map((p) => {
+      const thread = `https://www.reddit.com${p.permalink}`;
+      const external = !p.is_self && p.url && !/^https?:\/\/(www\.reddit\.com|i\.redd\.it|v\.redd\.it|preview\.redd\.it)/.test(p.url);
+      const img = p.preview?.images?.[0]?.source?.url || (/^https?:/.test(p.thumbnail || '') ? p.thumbnail : '');
+      return {
+        title: p.title,
+        link: external ? p.url : thread,
+        discussion: thread,
+        date: new Date(p.created_utc * 1000).toISOString(),
+        summary: `▲ ${p.score} · ${p.num_comments} comments${p.selftext ? ' · ' + p.selftext : ''}`,
+        image: img,
+        engagement: p.score,
+        sourceName: p.subreddit_name_prefixed,
+      };
+    });
+}
+
 async function loadReddit(src) {
+  if (process.env.REDDIT_CLIENT_ID && process.env.REDDIT_CLIENT_SECRET) return loadRedditApi(src);
   const xml = await get(src.url);
   const entries = xml.match(/<entry\b[\s\S]*?<\/entry>/gi) || [];
   return parseFeed(xml).map((it, i) => {
